@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>&#127799; Verbita &#8212; Spanish Verb Tenses for Zoey</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body, #root { height: 100%; font-family: 'Nunito', sans-serif; }
+  body { overflow-x: hidden; transition: background 0.3s ease; }
+  button { font-family: 'Nunito', sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  button:active { transform: scale(0.97); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  @keyframes micPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,181,194,0.4); } 50% { box-shadow: 0 0 0 16px rgba(255,181,194,0); } }
+  @keyframes confetti { 0% { transform: translateY(0) rotate(0); opacity:1; } 100% { transform: translateY(-60px) rotate(360deg); opacity:0; } }
+  .fade-in { animation: fadeIn 0.3s ease-out; }
+  .pulse { animation: pulse 2s ease-in-out infinite; }
+  .mic-pulse { animation: micPulse 1.5s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef, useMemo, createContext, useContext } = React;
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   THEME SYSTEM (Light + Dark)
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+const lightTheme = {
+  bg: "#FFF8F0", bgSoft: "#FFF1E6", card: "#FFFFFF",
+  pink: "#FFB5C2", pinkLight: "#FFD6DE", pinkDark: "#E8899A",
+  lavender: "#C3B1E1", lavenderLight: "#E0D4F5",
+  mint: "#B8E8D0", mintLight: "#D4F5E4",
+  peach: "#FFDAB9", peachLight: "#FFE8D0",
+  yellow: "#FFE5A0", yellowLight: "#FFF2CC",
+  text: "#4A3728", textLight: "#8B7355", textMuted: "#B8A08A",
+  white: "#FFFFFF", shadow: "rgba(74,55,40,0.08)",
+  correct: "#7BC67E", incorrect: "#FF8B8B",
+};
+
+const darkTheme = {
+  bg: "#1A1520", bgSoft: "#241E2C", card: "#2A2335",
+  pink: "#E8899A", pinkLight: "#3D2A35", pinkDark: "#FFB5C2",
+  lavender: "#C3B1E1", lavenderLight: "#352D45",
+  mint: "#7BC67E", mintLight: "#1E3025",
+  peach: "#FFDAB9", peachLight: "#33281E",
+  yellow: "#FFE5A0", yellowLight: "#33301E",
+  text: "#F0E6D6", textLight: "#B8A08A", textMuted: "#6B5D52",
+  white: "#2A2335", shadow: "rgba(0,0,0,0.25)",
+  correct: "#7BC67E", incorrect: "#FF6B6B",
+};
+
+const ThemeContext = createContext();
+const useTheme = () => useContext(ThemeContext);
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   PERSISTENCE (localStorage)
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+const STORAGE_KEY = "verbita_save";
+
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    // Check if streak should reset (missed a day)
+    const lastDate = data.lastPracticeDate;
+    const today = new Date().toDateString();
+    if (lastDate && lastDate !== today) {
+      const last = new Date(lastDate);
+      const now = new Date();
+      const diffDays = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+      if (diffDays > 1) data.streak = 0; // Streak broken
+    }
+    return data;
+  } catch { return null; }
+}
+
+function writeSave(stats) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      ...stats,
+      lastPracticeDate: new Date().toDateString(),
+    }));
+  } catch {}
+}
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   QUESTION BANKS &#8212; EXPANDED
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+
+// Sentence Builder: each question has multiple accepted orderings
+const sentenceBuilderBank = [
+  {
+    english: "Yesterday I ate with my friends in the park.",
+    words: ["Ayer", "yo", "com\u00ed", "con", "mis", "amigos", "en", "el", "parque"],
+    accepted: [
+      ["Ayer", "yo", "com\u00ed", "con", "mis", "amigos", "en", "el", "parque"],
+      ["Ayer", "com\u00ed", "con", "mis", "amigos", "en", "el", "parque"],
+      ["Yo", "com\u00ed", "con", "mis", "amigos", "en", "el", "parque", "ayer"],
+    ],
+    tense: "pret\u00e9rito", tenseCat: "preterito",
+    verbExplain: "'com\u00ed' is pret\u00e9rito \u2014 a completed action yesterday. Note: 'yo' is optional since the verb ending already tells us who!",
+    xp: 15,
+  },
+  {
+    english: "Every day I study Spanish at my house.",
+    words: ["Todos", "los", "d\u00edas", "yo", "estudio", "espa\u00f1ol", "en", "mi", "casa"],
+    accepted: [
+      ["Todos", "los", "d\u00edas", "yo", "estudio", "espa\u00f1ol", "en", "mi", "casa"],
+      ["Todos", "los", "d\u00edas", "estudio", "espa\u00f1ol", "en", "mi", "casa"],
+      ["Yo", "estudio", "espa\u00f1ol", "en", "mi", "casa", "todos", "los", "d\u00edas"],
+      ["Estudio", "espa\u00f1ol", "en", "mi", "casa", "todos", "los", "d\u00edas"],
+    ],
+    tense: "presente", tenseCat: "presente",
+    verbExplain: "'estudio' is presente \u2014 a habitual action that happens every day!",
+    xp: 15,
+  },
+  {
+    english: "Last week she traveled to Mexico with her family.",
+    words: ["La", "semana", "pasada", "ella", "viaj\u00f3", "a", "M\u00e9xico", "con", "su", "familia"],
+    accepted: [
+      ["La", "semana", "pasada", "ella", "viaj\u00f3", "a", "M\u00e9xico", "con", "su", "familia"],
+      ["Ella", "viaj\u00f3", "a", "M\u00e9xico", "con", "su", "familia", "la", "semana", "pasada"],
+      ["La", "semana", "pasada", "viaj\u00f3", "a", "M\u00e9xico", "con", "su", "familia"],
+    ],
+    tense: "pret\u00e9rito", tenseCat: "preterito",
+    verbExplain: "'viaj\u00f3' is pret\u00e9rito \u2014 the trip is finished!",
+    xp: 15,
+  },
+  {
+    english: "We eat breakfast at eight in the morning.",
+    words: ["Nosotros", "desayunamos", "a", "las", "ocho", "de", "la", "ma\u00f1ana"],
+    accepted: [
+      ["Nosotros", "desayunamos", "a", "las", "ocho", "de", "la", "ma\u00f1ana"],
+      ["Desayunamos", "a", "las", "ocho", "de", "la", "ma\u00f1ana"],
+    ],
+    tense: "presente", tenseCat: "presente",
+    verbExplain: "'desayunamos' is presente \u2014 a regular daily routine!",
+    xp: 15,
+  },
+  {
+    english: "Last night they watched a movie at the cinema.",
+    words: ["Anoche", "ellos", "vieron", "una", "pel\u00edcula", "en", "el", "cine"],
+    accepted: [
+      ["Anoche", "ellos", "vieron", "una", "pel\u00edcula", "en", "el", "cine"],
+      ["Anoche", "vieron", "una", "pel\u00edcula", "en", "el", "cine"],
+      ["Ellos", "vieron", "una", "pel\u00edcula", "en", "el", "cine", "anoche"],
+    ],
+    tense: "pret\u00e9rito", tenseCat: "preterito",
+    verbExplain: "'vieron' is pret\u00e9rito \u2014 a completed event last night!",
+    xp: 15,
+  },
+  {
+    english: "My sister plays the guitar very well.",
+    words: ["Mi", "hermana", "toca", "la", "guitarra", "muy", "bien"],
+    accepted: [
+      ["Mi", "hermana", "toca", "la", "guitarra", "muy", "bien"],
+    ],
+    tense: "presente", tenseCat: "presente",
+    verbExplain: "'toca' is presente \u2014 an ongoing ability she has!",
+    xp: 15,
+  },
+  {
+    english: "On Saturday I went to the beach with my family.",
+    words: ["El", "s\u00e1bado", "yo", "fui", "a", "la", "playa", "con", "mi", "familia"],
+    accepted: [
+      ["El", "s\u00e1bado", "yo", "fui", "a", "la", "playa", "con", "mi", "familia"],
+      ["El", "s\u00e1bado", "fui", "a", "la", "playa", "con", "mi", "familia"],
+      ["Yo", "fui", "a", "la", "playa", "con", "mi", "familia", "el", "s\u00e1bado"],
+      ["Fui", "a", "la", "playa", "con", "mi", "familia", "el", "s\u00e1bado"],
+    ],
+    tense: "pret\u00e9rito", tenseCat: "preterito",
+    verbExplain: "'fui' is pret\u00e9rito \u2014 an irregular form of 'ir' (to go) for a completed trip!",
+    xp: 15,
+  },
+  {
+    english: "The students always arrive early to class.",
+    words: ["Los", "estudiantes", "siempre", "llegan", "temprano", "a", "clase"],
+    accepted: [
+      ["Los", "estudiantes", "siempre", "llegan", "temprano", "a", "clase"],
+      ["Siempre", "los", "estudiantes", "llegan", "temprano", "a", "clase"],
+    ],
+    tense: "presente", tenseCat: "presente",
+    verbExplain: "'llegan' is presente \u2014 'siempre' (always) signals a regular habit!",
+    xp: 15,
+  },
+  {
+    english: "Yesterday we ran five kilometers in the park.",
+    words: ["Ayer", "nosotros", "corrimos", "cinco", "kil\u00f3metros", "en", "el", "parque"],
+    accepted: [
+      ["Ayer", "nosotros", "corrimos", "cinco", "kil\u00f3metros", "en", "el", "parque"],
+      ["Ayer", "corrimos", "cinco", "kil\u00f3metros", "en", "el", "parque"],
+      ["Nosotros", "corrimos", "cinco", "kil\u00f3metros", "en", "el", "parque", "ayer"],
+      ["Corrimos", "cinco", "kil\u00f3metros", "en", "el", "parque", "ayer"],
+    ],
+    tense: "pret\u00e9rito", tenseCat: "preterito",
+    verbExplain: "'corrimos' is pret\u00e9rito \u2014 a specific, completed action yesterday!",
+    xp: 15,
+  },
+  {
+    english: "My mom cooks dinner every night.",
+    words: ["Mi", "mam\u00e1", "cocina", "la", "cena", "todas", "las", "noches"],
+    accepted: [
+      ["Mi", "mam\u00e1", "cocina", "la", "cena", "todas", "las", "noches"],
+      ["Todas", "las", "noches", "mi", "mam\u00e1", "cocina", "la", "cena"],
+    ],
+    tense: "presente", tenseCat: "presente",
+    verbExplain: "'cocina' is presente \u2014 a recurring nightly routine!",
+    xp: 15,
+  },
+  {
+    english: "He wrote a letter to his grandmother.",
+    words: ["\u00c9l", "escribi\u00f3", "una", "carta", "a", "su", "abuela"],
+    accepted: [
+      ["\u00c9l", "escribi\u00f3", "una", "carta", "a", "su", "abuela"],
+      ["Escribi\u00f3", "una", "carta", "a", "su", "abuela"],
+    ],
+    tense: "pret\u00e9rito", tenseCat: "preterito",
+    verbExplain: "'escribi\u00f3' is pret\u00e9rito \u2014 writing the letter is a finished action!",
+    xp: 15,
+  },
+  {
+    english: "We always drink water after exercise.",
+    words: ["Nosotros", "siempre", "bebemos", "agua", "despu\u00e9s", "del", "ejercicio"],
+    accepted: [
+      ["Nosotros", "siempre", "bebemos", "agua", "despu\u00e9s", "del", "ejercicio"],
+      ["Siempre", "bebemos", "agua", "despu\u00e9s", "del", "ejercicio"],
+    ],
+    tense: "presente", tenseCat: "presente",
+    verbExplain: "'bebemos' is presente \u2014 'siempre' tells us this is a constant habit!",
+    xp: 15,
+  },
+];
+
+const tenseSpotterBank = [
+  {
+    parts: [
+      { text: "Cuando ", v: false }, { text: "era", v: true },
+      { text: " peque\u00f1a, ", v: false }, { text: "jugaba", v: true },
+      { text: " en el jard\u00edn todos los d\u00edas.", v: false },
+    ],
+    translation: "When I was little, I used to play in the garden every day.",
+    correct: "Imperfecto", tenseCat: "imperfecto",
+    explanation: "Both verbs use the imperfecto because they describe habitual, repeated past actions.",
+    xp: 10,
+  },
+  {
+    parts: [
+      { text: "Ayer mi mam\u00e1 ", v: false }, { text: "cocin\u00f3", v: true },
+      { text: " una cena deliciosa.", v: false },
+    ],
+    translation: "Yesterday my mom cooked a delicious dinner.",
+    correct: "Pret\u00e9rito", tenseCat: "preterito",
+    explanation: "Pret\u00e9rito because cooking dinner was a single, completed action yesterday.",
+    xp: 10,
+  },
+  {
+    parts: [
+      { text: "Mis amigos y yo ", v: false }, { text: "jugamos", v: true },
+      { text: " f\u00fatbol despu\u00e9s de clases.", v: false },
+    ],
+    translation: "My friends and I play soccer after school.",
+    correct: "Presente", tenseCat: "presente",
+    explanation: "Presente because this is a regular, habitual activity they do routinely.",
+    xp: 10,
+  },
+  {
+    parts: [
+      { text: "El verano pasado ", v: false }, { text: "viaj\u00e9", v: true },
+      { text: " a Espa\u00f1a con mi familia y ", v: false }, { text: "visitamos", v: true },
+      { text: " muchos lugares.", v: false },
+    ],
+    translation: "Last summer I traveled to Spain with my family and we visited many places.",
+    correct: "Pret\u00e9rito", tenseCat: "preterito",
+    explanation: "Both verbs are pret\u00e9rito \u2014 completed actions during a specific past trip.",
+    xp: 12,
+  },
+  {
+    parts: [
+      { text: "Ella siempre ", v: false }, { text: "llega", v: true },
+      { text: " temprano a la escuela.", v: false },
+    ],
+    translation: "She always arrives early to school.",
+    correct: "Presente", tenseCat: "presente",
+    explanation: "Presente with 'siempre' (always) describes a consistent, ongoing habit.",
+    xp: 10,
+  },
+  {
+    parts: [
+      { text: "De ni\u00f1o, ", v: false }, { text: "viv\u00eda", v: true },
+      { text: " en una casa grande con mis abuelos.", v: false },
+    ],
+    translation: "As a child, I used to live in a big house with my grandparents.",
+    correct: "Imperfecto", tenseCat: "imperfecto",
+    explanation: "Imperfecto for an ongoing state in the past \u2014 where you lived as a child wasn't a one-time event.",
+    xp: 10,
+  },
+  {
+    parts: [
+      { text: "Nosotros ", v: false }, { text: "comemos", v: true },
+      { text: " juntos todos los domingos.", v: false },
+    ],
+    translation: "We eat together every Sunday.",
+    correct: "Presente", tenseCat: "presente",
+    explanation: "Presente because 'todos los domingos' (every Sunday) signals a regular routine.",
+    xp: 10,
+  },
+  {
+    parts: [
+      { text: "Anoche ", v: false }, { text: "llovi\u00f3", v: true },
+      { text: " mucho y se ", v: false }, { text: "inund\u00f3", v: true },
+      { text: " la calle.", v: false },
+    ],
+    translation: "Last night it rained a lot and the street flooded.",
+    correct: "Pret\u00e9rito", tenseCat: "preterito",
+    explanation: "Both pret\u00e9rito \u2014 specific, completed events that happened last night.",
+    xp: 12,
+  },
+  {
+    parts: [
+      { text: "Cada verano ", v: false }, { text: "\u00edbamos", v: true },
+      { text: " a la playa y ", v: false }, { text: "nad\u00e1bamos", v: true },
+      { text: " todo el d\u00eda.", v: false },
+    ],
+    translation: "Every summer we used to go to the beach and swim all day.",
+    correct: "Imperfecto", tenseCat: "imperfecto",
+    explanation: "Imperfecto because 'cada verano' (every summer) shows these were repeated, habitual actions.",
+    xp: 12,
+  },
+  {
+    parts: [
+      { text: "El profesor ", v: false }, { text: "explic\u00f3", v: true },
+      { text: " la lecci\u00f3n y despu\u00e9s nos ", v: false }, { text: "dio", v: true },
+      { text: " un examen.", v: false },
+    ],
+    translation: "The teacher explained the lesson and then gave us a test.",
+    correct: "Pret\u00e9rito", tenseCat: "preterito",
+    explanation: "Both pret\u00e9rito \u2014 two completed, sequential actions in the past.",
+    xp: 12,
+  },
+  {
+    parts: [
+      { text: "Mi perro ", v: false }, { text: "duerme", v: true },
+      { text: " en mi cama todas las noches.", v: false },
+    ],
+    translation: "My dog sleeps in my bed every night.",
+    correct: "Presente", tenseCat: "presente",
+    explanation: "Presente because 'todas las noches' describes a nightly routine.",
+    xp: 10,
+  },
+  {
+    parts: [
+      { text: "Antes, mi familia ", v: false }, { text: "ten\u00eda", v: true },
+      { text: " un gato que se ", v: false }, { text: "llamaba", v: true },
+      { text: " Whiskers.", v: false },
+    ],
+    translation: "Before, my family had a cat that was called Whiskers.",
+    correct: "Imperfecto", tenseCat: "imperfecto",
+    explanation: "Imperfecto for ongoing states in the past \u2014 having the cat and its name were not one-time events.",
+    xp: 12,
+  },
+];
+
+const chatBank = [
+  {
+    friendName: "Sof\u00eda", friendEmoji: "\ud83d\udc67",
+    message: "\u00a1Hola! \u00bfQu\u00e9 hiciste ayer despu\u00e9s de clases?",
+    translation: "Hi! What did you do yesterday after school?",
+    options: [
+      { text: "Fui al cine con mi hermana.", correct: true, tense: "pret\u00e9rito" },
+      { text: "Voy al cine con mi hermana.", correct: false, tense: "presente" },
+      { text: "Ir\u00e9 al cine con mi hermana.", correct: false, tense: "futuro" },
+    ],
+    tenseCat: "preterito",
+    correctExplain: "You used the pret\u00e9rito because you're talking about something you did yesterday \u2014 a completed past action!",
+    wrongExplain: "Your friend asked about yesterday (past), so you need the pret\u00e9rito for completed past actions!",
+    xp: 12,
+  },
+  {
+    friendName: "Carlos", friendEmoji: "\ud83d\udc66",
+    message: "\u00bfQu\u00e9 haces normalmente los fines de semana?",
+    translation: "What do you normally do on weekends?",
+    options: [
+      { text: "Salgo con mis amigos.", correct: true, tense: "presente" },
+      { text: "Sal\u00ed con mis amigos.", correct: false, tense: "pret\u00e9rito" },
+      { text: "Sal\u00eda con mis amigos.", correct: false, tense: "imperfecto" },
+    ],
+    tenseCat: "presente",
+    correctExplain: "The presente is perfect because Carlos asked about what you normally do \u2014 a regular habit!",
+    wrongExplain: "Carlos asked 'normalmente' \u2014 that's a cue for the presente, since it's about regular habits!",
+    xp: 12,
+  },
+  {
+    friendName: "Luna", friendEmoji: "\ud83e\uddd1",
+    message: "\u00bfC\u00f3mo fue tu fin de semana pasado?",
+    translation: "How was your last weekend?",
+    options: [
+      { text: "Visit\u00e9 a mis abuelos y comimos juntos.", correct: true, tense: "pret\u00e9rito" },
+      { text: "Visito a mis abuelos y comemos juntos.", correct: false, tense: "presente" },
+      { text: "Visitaba a mis abuelos y com\u00edamos juntos.", correct: false, tense: "imperfecto" },
+    ],
+    tenseCat: "preterito",
+    correctExplain: "Both verbs in pret\u00e9rito because you're describing specific completed events last weekend!",
+    wrongExplain: "Luna asked about 'el fin de semana pasado' \u2014 specific completed events need the pret\u00e9rito!",
+    xp: 14,
+  },
+  {
+    friendName: "Diego", friendEmoji: "\ud83d\udc66",
+    message: "\u00bfQu\u00e9 deportes practicas?",
+    translation: "What sports do you play?",
+    options: [
+      { text: "Juego f\u00fatbol y nado los martes.", correct: true, tense: "presente" },
+      { text: "Jugu\u00e9 f\u00fatbol y nad\u00e9 los martes.", correct: false, tense: "pret\u00e9rito" },
+      { text: "Jugaba f\u00fatbol y nadaba los martes.", correct: false, tense: "imperfecto" },
+    ],
+    tenseCat: "presente",
+    correctExplain: "Presente is right because Diego is asking about your current, regular activities!",
+    wrongExplain: "Diego asked '\u00bfQu\u00e9 deportes practicas?' \u2014 present tense question about current habits needs presente!",
+    xp: 12,
+  },
+  {
+    friendName: "Valentina", friendEmoji: "\ud83d\udc67",
+    message: "\u00bfQu\u00e9 pas\u00f3 en la fiesta anoche?",
+    translation: "What happened at the party last night?",
+    options: [
+      { text: "Bailamos mucho y conoc\u00ed a gente nueva.", correct: true, tense: "pret\u00e9rito" },
+      { text: "Bailamos mucho y conozco a gente nueva.", correct: false, tense: "presente" },
+      { text: "Bail\u00e1bamos mucho y conoc\u00eda a gente nueva.", correct: false, tense: "imperfecto" },
+    ],
+    tenseCat: "preterito",
+    correctExplain: "Pret\u00e9rito because 'anoche' (last night) is a specific past event \u2014 it happened and it's over!",
+    wrongExplain: "'Anoche' (last night) tells you this already happened \u2014 use pret\u00e9rito for completed past events!",
+    xp: 14,
+  },
+  {
+    friendName: "Sof\u00eda", friendEmoji: "\ud83d\udc67",
+    message: "\u00bfC\u00f3mo era tu escuela cuando viv\u00edas en otra ciudad?",
+    translation: "What was your school like when you lived in another city?",
+    options: [
+      { text: "Era peque\u00f1a y ten\u00eda un patio enorme.", correct: true, tense: "imperfecto" },
+      { text: "Fue peque\u00f1a y tuvo un patio enorme.", correct: false, tense: "pret\u00e9rito" },
+      { text: "Es peque\u00f1a y tiene un patio enorme.", correct: false, tense: "presente" },
+    ],
+    tenseCat: "imperfecto",
+    correctExplain: "Imperfecto is perfect for describing what things were like \u2014 ongoing descriptions of the past!",
+    wrongExplain: "Sof\u00eda asked '\u00bfC\u00f3mo era...?' (what was it like?) \u2014 descriptions of past states use imperfecto!",
+    xp: 14,
+  },
+  {
+    friendName: "Carlos", friendEmoji: "\ud83d\udc66",
+    message: "\u00bfQu\u00e9 hac\u00edas cuando eras ni\u00f1a?",
+    translation: "What did you used to do when you were a kid?",
+    options: [
+      { text: "Jugaba con mis mu\u00f1ecas y ve\u00eda caricaturas.", correct: true, tense: "imperfecto" },
+      { text: "Jugu\u00e9 con mis mu\u00f1ecas y vi caricaturas.", correct: false, tense: "pret\u00e9rito" },
+      { text: "Juego con mis mu\u00f1ecas y veo caricaturas.", correct: false, tense: "presente" },
+    ],
+    tenseCat: "imperfecto",
+    correctExplain: "Imperfecto because Carlos asked about things you 'used to do' \u2014 habitual past actions!",
+    wrongExplain: "'\u00bfQu\u00e9 hac\u00edas...?' (what did you used to do?) asks about repeated past habits \u2014 that's imperfecto!",
+    xp: 14,
+  },
+  {
+    friendName: "Luna", friendEmoji: "\ud83e\uddd1",
+    message: "\u00bfA qu\u00e9 hora te levantas para ir a la escuela?",
+    translation: "What time do you wake up to go to school?",
+    options: [
+      { text: "Me levanto a las siete de la ma\u00f1ana.", correct: true, tense: "presente" },
+      { text: "Me levant\u00e9 a las siete de la ma\u00f1ana.", correct: false, tense: "pret\u00e9rito" },
+      { text: "Me levantaba a las siete de la ma\u00f1ana.", correct: false, tense: "imperfecto" },
+    ],
+    tenseCat: "presente",
+    correctExplain: "Presente because Luna asked about your current routine \u2014 what you do now!",
+    wrongExplain: "Luna asked '\u00bfA qu\u00e9 hora te levantas?' in present tense \u2014 she wants to know your current routine!",
+    xp: 12,
+  },
+  {
+    friendName: "Diego", friendEmoji: "\ud83d\udc66",
+    message: "\u00bfQu\u00e9 hicieron t\u00fa y tu familia durante las vacaciones?",
+    translation: "What did you and your family do during vacation?",
+    options: [
+      { text: "Fuimos a la playa y comimos mariscos.", correct: true, tense: "pret\u00e9rito" },
+      { text: "Vamos a la playa y comemos mariscos.", correct: false, tense: "presente" },
+      { text: "\u00cdbamos a la playa y com\u00edamos mariscos.", correct: false, tense: "imperfecto" },
+    ],
+    tenseCat: "preterito",
+    correctExplain: "Pret\u00e9rito because Diego asked about a specific vacation \u2014 completed events!",
+    wrongExplain: "'\u00bfQu\u00e9 hicieron...?' uses pret\u00e9rito in the question \u2014 your answer should match!",
+    xp: 14,
+  },
+  {
+    friendName: "Valentina", friendEmoji: "\ud83d\udc67",
+    message: "\u00bfD\u00f3nde vives ahora?",
+    translation: "Where do you live now?",
+    options: [
+      { text: "Vivo en una casa cerca de la escuela.", correct: true, tense: "presente" },
+      { text: "Viv\u00ed en una casa cerca de la escuela.", correct: false, tense: "pret\u00e9rito" },
+      { text: "Viv\u00eda en una casa cerca de la escuela.", correct: false, tense: "imperfecto" },
+    ],
+    tenseCat: "presente",
+    correctExplain: "Presente because 'ahora' (now) tells you she's asking about the current situation!",
+    wrongExplain: "'Ahora' (now) is a clear signal \u2014 present tense for your current living situation!",
+    xp: 12,
+  },
+];
+
+const timelineBank = [
+  {
+    verbs: [
+      { id: 1, verb: "jugaba", meaning: "I used to play", zone: "habitual-past", tense: "Imperfecto" },
+      { id: 2, verb: "com\u00ed", meaning: "I ate", zone: "completed-past", tense: "Pret\u00e9rito" },
+      { id: 3, verb: "estudio", meaning: "I study", zone: "present", tense: "Presente" },
+      { id: 4, verb: "viajar\u00e9", meaning: "I will travel", zone: "future", tense: "Futuro" },
+    ], xp: 20,
+  },
+  {
+    verbs: [
+      { id: 1, verb: "canto", meaning: "I sing", zone: "present", tense: "Presente" },
+      { id: 2, verb: "le\u00eda", meaning: "I used to read", zone: "habitual-past", tense: "Imperfecto" },
+      { id: 3, verb: "bail\u00e9", meaning: "I danced", zone: "completed-past", tense: "Pret\u00e9rito" },
+      { id: 4, verb: "aprender\u00e9", meaning: "I will learn", zone: "future", tense: "Futuro" },
+    ], xp: 20,
+  },
+  {
+    verbs: [
+      { id: 1, verb: "viv\u00eda", meaning: "I used to live", zone: "habitual-past", tense: "Imperfecto" },
+      { id: 2, verb: "corr\u00ed", meaning: "I ran", zone: "completed-past", tense: "Pret\u00e9rito" },
+      { id: 3, verb: "escribo", meaning: "I write", zone: "present", tense: "Presente" },
+      { id: 4, verb: "comer\u00e9", meaning: "I will eat", zone: "future", tense: "Futuro" },
+    ], xp: 20,
+  },
+  {
+    verbs: [
+      { id: 1, verb: "hablo", meaning: "I speak", zone: "present", tense: "Presente" },
+      { id: 2, verb: "dorm\u00eda", meaning: "I used to sleep", zone: "habitual-past", tense: "Imperfecto" },
+      { id: 3, verb: "compr\u00e9", meaning: "I bought", zone: "completed-past", tense: "Pret\u00e9rito" },
+      { id: 4, verb: "estudiar\u00e9", meaning: "I will study", zone: "future", tense: "Futuro" },
+    ], xp: 20,
+  },
+];
+
+const speakCheckBank = [
+  {
+    question: "\u00bfQu\u00e9 hiciste el fin de semana pasado?",
+    translation: "What did you do last weekend?",
+    expectedTense: "Pret\u00e9rito", tenseCat: "preterito",
+    hint: "Use the pret\u00e9rito to talk about completed actions last weekend.",
+    sampleAnswer: "El fin de semana pasado, fui al cine con mis amigos y despu\u00e9s comimos pizza.",
+    xp: 18,
+  },
+  {
+    question: "\u00bfQu\u00e9 haces todos los d\u00edas despu\u00e9s de la escuela?",
+    translation: "What do you do every day after school?",
+    expectedTense: "Presente", tenseCat: "presente",
+    hint: "Use the presente to describe your daily routine.",
+    sampleAnswer: "Despu\u00e9s de la escuela, llego a mi casa, como algo y luego hago mi tarea.",
+    xp: 18,
+  },
+  {
+    question: "\u00bfQu\u00e9 comiste ayer en la cena?",
+    translation: "What did you eat for dinner yesterday?",
+    expectedTense: "Pret\u00e9rito", tenseCat: "preterito",
+    hint: "Use the pret\u00e9rito because this was a specific meal that already happened.",
+    sampleAnswer: "Ayer cen\u00e9 pasta con mi familia. Mi mam\u00e1 cocin\u00f3 una salsa deliciosa.",
+    xp: 18,
+  },
+  {
+    question: "\u00bfQu\u00e9 hac\u00edas de ni\u00f1a en las vacaciones de verano?",
+    translation: "What did you used to do as a kid during summer vacation?",
+    expectedTense: "Imperfecto", tenseCat: "imperfecto",
+    hint: "Use the imperfecto for things you used to do repeatedly in the past.",
+    sampleAnswer: "De ni\u00f1a, jugaba en el parque con mis primos y nad\u00e1bamos en la piscina todos los d\u00edas.",
+    xp: 18,
+  },
+  {
+    question: "Describe tu rutina de la ma\u00f1ana.",
+    translation: "Describe your morning routine.",
+    expectedTense: "Presente", tenseCat: "presente",
+    hint: "Use the presente because you're describing what you do regularly.",
+    sampleAnswer: "Primero me despierto a las siete, luego me ba\u00f1o, desayuno cereal y camino a la escuela.",
+    xp: 18,
+  },
+  {
+    question: "\u00bfQu\u00e9 pas\u00f3 en tu \u00faltimo cumplea\u00f1os?",
+    translation: "What happened on your last birthday?",
+    expectedTense: "Pret\u00e9rito", tenseCat: "preterito",
+    hint: "Use the pret\u00e9rito for specific events that happened on your birthday.",
+    sampleAnswer: "En mi \u00faltimo cumplea\u00f1os, hice una fiesta con mis amigos, comimos pastel y bailamos mucho.",
+    xp: 18,
+  },
+];
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   SMART SENTENCE CHECKER
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+function checkSentence(placed, question) {
+  const attempt = placed.join(" ");
+  const attemptLower = placed.map(w => w.toLowerCase()).join(" ");
+
+  for (const accepted of question.accepted) {
+    if (accepted.join(" ") === attempt) return { correct: true };
+    // Also check case-insensitive
+    if (accepted.map(w => w.toLowerCase()).join(" ") === attemptLower) return { correct: true };
+  }
+
+  // Smart error detection
+  const best = question.accepted[0];
+  const errors = [];
+
+  // Check if it's a word-order issue with articles/prepositions
+  const placedSet = placed.map(w => w.toLowerCase()).sort().join(",");
+  const bestSet = best.map(w => w.toLowerCase()).sort().join(",");
+  if (placedSet === bestSet) {
+    // Same words, different order &#8212; check what's wrong
+    const verbIdx = best.findIndex(w => question.words.indexOf(w) !== -1 &&
+      /[&#243;&#233;&#237;&#225;&#250;]|amos|emos|imos|an|en|as|es/.test(w));
+
+    // Check if subject-verb order is off
+    const pronouns = ["yo", "t\u00fa", "\u00e9l", "ella", "nosotros", "ellos", "ellas"];
+    const firstPlaced = placed[0].toLowerCase();
+    const firstBest = best[0].toLowerCase();
+
+    if (pronouns.includes(firstPlaced) && !pronouns.includes(firstBest)) {
+      errors.push("Try putting the time expression first \u2014 in Spanish, time words often lead the sentence.");
+    } else if (/^(en|a|con|de|del|al)$/.test(firstPlaced)) {
+      errors.push("Prepositions like '" + placed[0] + "' usually go in the middle, not at the start.");
+    } else {
+      errors.push("The words are right but the order needs adjusting. Try a different arrangement!");
+    }
+  } else {
+    errors.push("Check which words you've placed \u2014 something seems off.");
+  }
+
+  return { correct: false, errors };
+}
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   IMPROVED SPEAK & CHECK ANALYZER
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+const IRREGULAR_PRETERITO = [
+  "fui", "fue", "fuimos", "fueron", "fuiste",
+  "hice", "hizo", "hicimos", "hicieron", "hiciste",
+  "dije", "dijo", "dijimos", "dijeron", "dijiste",
+  "puse", "puso", "pusimos", "pusieron", "pusiste",
+  "tuve", "tuvo", "tuvimos", "tuvieron", "tuviste",
+  "estuve", "estuvo", "estuvimos", "estuvieron",
+  "vine", "vino", "vinimos", "vinieron",
+  "supe", "supo", "supimos", "supieron",
+  "quise", "quiso", "quisimos", "quisieron",
+  "traje", "trajo", "trajimos", "trajeron",
+  "vi", "vio", "vimos", "vieron", "viste",
+  "di", "dio", "dimos", "dieron", "diste",
+];
+
+const IRREGULAR_PRESENTE = [
+  "soy", "eres", "es", "somos", "son",
+  "tengo", "tienes", "tiene", "tenemos", "tienen",
+  "voy", "vas", "va", "vamos", "van",
+  "hago", "haces", "hace", "hacemos", "hacen",
+  "digo", "dices", "dice", "decimos", "dicen",
+  "salgo", "sales", "sale", "salimos", "salen",
+  "conozco", "conoces", "conoce", "conocemos", "conocen",
+  "s\u00e9", "sabes", "sabe", "sabemos", "saben",
+  "pongo", "pones", "pone", "ponemos", "ponen",
+  "vengo", "vienes", "viene", "venimos", "vienen",
+  "quiero", "quieres", "quiere", "queremos", "quieren",
+  "puedo", "puedes", "puede", "podemos", "pueden",
+];
+
+function analyzeSpoken(text, question) {
+  const lower = text.toLowerCase().normalize("NFD").replace(/[\u0301]/g, "");
+  const words = lower.split(/\s+/);
+  const result = { transcript: text, tenseCorrect: false, corrections: [], praise: "" };
+
+  // Regular ending patterns
+  const preteritoEndings = /(e|aste|o|amos|aron|ieron|imos|iste)$/;
+  const imperfectoEndings = /(aba|abas|&#225;bamos|aban|&#237;a|&#237;as|&#237;amos|&#237;an)$/;
+  const presenteEndings = /(o|as|es|a|e|amos|emos|imos|an|en)$/;
+
+  let preteritoScore = 0, presenteScore = 0, imperfectoScore = 0;
+
+  words.forEach(w => {
+    const clean = w.replace(/[.,!?&#191;&#161;]/g, "");
+    if (IRREGULAR_PRETERITO.includes(clean)) preteritoScore += 3;
+    if (IRREGULAR_PRESENTE.includes(clean)) presenteScore += 3;
+    if (preteritoEndings.test(clean) && clean.length > 3) preteritoScore += 1;
+    if (imperfectoEndings.test(clean) && clean.length > 4) imperfectoScore += 2;
+  });
+
+  const expected = question.expectedTense;
+  if (expected === "Pret\u00e9rito") {
+    result.tenseCorrect = preteritoScore >= 2;
+    result.praise = result.tenseCorrect
+      ? "You nailed the pret\u00e9rito! Your past tense verb forms are spot on for talking about completed actions."
+      : "Hmm, I didn't hear clear pret\u00e9rito forms. Try using verbs ending in -\u00e9, -aste, -\u00f3, -amos, -aron, or irregulars like 'fui', 'hice', 'vi'.";
+  } else if (expected === "Presente") {
+    result.tenseCorrect = presenteScore >= 2 || (preteritoScore === 0 && imperfectoScore === 0 && words.length > 3);
+    result.praise = result.tenseCorrect
+      ? "Great use of the presente! Your verb forms correctly describe current habits and routines."
+      : "I'm not sure I heard present tense forms. For routines, use endings like -o, -as, -a, -amos, -an.";
+  } else if (expected === "Imperfecto") {
+    result.tenseCorrect = imperfectoScore >= 2;
+    result.praise = result.tenseCorrect
+      ? "Excellent imperfecto! Those -aba/-\u00eda endings perfectly capture habitual past actions."
+      : "For things you 'used to do', try imperfecto endings: -aba, -abas, -aban (for -ar verbs) or -\u00eda, -\u00edas, -\u00edan (for -er/-ir verbs).";
+  }
+
+  // Grammar checks
+  if (/\bcon mi [a-z&#225;&#233;&#237;&#243;&#250;]+s\b/i.test(text)) {
+    result.corrections.push({
+      issue: "con mi + plural noun",
+      fix: "con mis + plural noun",
+      explanation: "Use 'mis' (plural) when the noun is plural. 'Mi' is only for singular nouns.",
+    });
+  }
+  if (/\byo [a-z&#225;&#233;&#237;&#243;&#250;]+mos\b/i.test(text)) {
+    result.corrections.push({
+      issue: "yo + -mos verb",
+      fix: "nosotros + -mos verb",
+      explanation: "'Yo' is 'I' \u2014 verbs ending in -mos are 'we' (nosotros). Use 'yo' with -o/-\u00e9/-\u00ed endings.",
+    });
+  }
+  if (/\bel [a-z&#225;&#233;&#237;&#243;&#250;]*a\b/i.test(text) && /\b(la casa|la mesa|la escuela|la cena|la playa)\b/i.test("el " + text.split("el ")[1]?.split(" ")[0])) {
+    // Basic article-noun gender check (simplified)
+  }
+  if (/\ba el\b/i.test(text)) {
+    result.corrections.push({
+      issue: "a el",
+      fix: "al",
+      explanation: "'A' + 'el' contracts to 'al' in Spanish. For example: 'Fui al parque' not 'Fui a el parque'.",
+    });
+  }
+  if (/\bde el\b/i.test(text)) {
+    result.corrections.push({
+      issue: "de el",
+      fix: "del",
+      explanation: "'De' + 'el' contracts to 'del' in Spanish. For example: 'cerca del parque' not 'cerca de el parque'.",
+    });
+  }
+
+  return result;
+}
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   SHARED COMPONENTS
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+const Card = ({ children, style, onClick, className="" }) => {
+  const { C } = useTheme();
+  return (
+    <div onClick={onClick} className={`fade-in ${className}`} style={{
+      background: C.card, borderRadius: 20, padding: 20,
+      boxShadow: `0 2px 12px ${C.shadow}`, ...style,
+    }}>{children}</div>
+  );
+};
+
+const BackButton = ({ onClick }) => {
+  const { C } = useTheme();
+  return (
+    <button onClick={onClick} style={{ background: "none", border: "none", color: C.textLight, fontSize: 14, padding: "8px 0" }}>
+      &#8592; Back
+    </button>
+  );
+};
+
+const ScreenHeader = ({ emoji, title, subtitle }) => {
+  const { C } = useTheme();
+  return (
+    <div style={{ textAlign: "center", marginBottom: 20 }} className="fade-in">
+      <span style={{ fontSize: 32 }}>{emoji}</span>
+      <h2 style={{ fontSize: 20, fontWeight: 800, color: C.text, margin: "8px 0 4px" }}>{title}</h2>
+      <p style={{ fontSize: 13, color: C.textLight, margin: 0 }}>{subtitle}</p>
+    </div>
+  );
+};
+
+const XPBadge = ({ xp }) => (
+  <div className="fade-in" style={{ textAlign: "center", fontSize: 15, fontWeight: 700, color: "#7BC67E", margin: "8px 0" }}>
+    +{xp} XP &#10024;
+  </div>
+);
+
+const PrimaryButton = ({ onClick, children, disabled, style={} }) => {
+  const { C } = useTheme();
+  return (
+    <button onClick={onClick} style={{
+      width: "100%", background: disabled ? C.pinkLight : C.pink, color: "#fff",
+      border: "none", borderRadius: 14, padding: "14px 0", fontSize: 14,
+      fontWeight: 700, transition: "all 0.2s ease", ...style,
+    }}>{children}</button>
+  );
+};
+
+const SecondaryButton = ({ onClick, children, style={} }) => {
+  const { C } = useTheme();
+  return (
+    <button onClick={onClick} style={{
+      background: C.bgSoft, color: C.textLight, border: "none", borderRadius: 14,
+      padding: "14px 0", fontSize: 14, fontWeight: 700, ...style,
+    }}>{children}</button>
+  );
+};
+
+// Progressive hint: hidden by default, shown after wrong answer or tap
+const HintCard = ({ children, forceShow }) => {
+  const { C } = useTheme();
+  const [show, setShow] = useState(false);
+  useEffect(() => { if (forceShow) setShow(true); }, [forceShow]);
+  if (!show) return (
+    <button onClick={() => setShow(true)} style={{
+      width: "100%", background: "none", border: `2px dashed ${C.yellow}`, borderRadius: 14,
+      padding: "10px 14px", fontSize: 13, color: C.textMuted, marginBottom: 16, textAlign: "center",
+    }}>&#128161; Need a hint? Tap here</button>
+  );
+  return (
+    <Card style={{ background: C.yellowLight, padding: 14, border: `2px solid ${C.yellow}`, marginBottom: 16 }}>
+      <div style={{ fontSize: 13, color: C.text }}><strong>&#128161; Hint:</strong> {children}</div>
+    </Card>
+  );
+};
+
+const CorrectCard = ({ children, xp }) => {
+  const { C } = useTheme();
+  return (
+    <Card style={{ background: `${C.correct}22`, border: `2px solid ${C.correct}`, textAlign: "center", marginBottom: 12 }}>
+      <div style={{ fontSize: 24 }}>&#127881;</div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>Perfect!</div>
+      <div style={{ fontSize: 12, color: C.textLight, lineHeight: 1.5 }}>{children}</div>
+      {xp && <XPBadge xp={xp} />}
+    </Card>
+  );
+};
+
+const WrongCard = ({ children, onRetry }) => {
+  const { C } = useTheme();
+  return (
+    <Card style={{ background: `${C.incorrect}22`, border: `2px solid ${C.incorrect}`, textAlign: "center", marginBottom: 12 }}>
+      <div style={{ fontSize: 24 }}>&#129300;</div>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginTop: 4 }}>Almost!</div>
+      <div style={{ fontSize: 12, color: C.textLight, lineHeight: 1.5 }}>{children}</div>
+      {onRetry && (
+        <button onClick={onRetry} style={{ marginTop: 10, background: C.pink || "#E8899A", color: "#fff", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, fontWeight: 700 }}>
+          Try Again
+        </button>
+      )}
+    </Card>
+  );
+};
+
+const ProgressDots = ({ current, total }) => {
+  const { C } = useTheme();
+  return (
+    <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 16 }}>
+      {Array.from({ length: total }, (_, i) => (
+        <div key={i} style={{
+          width: i === current ? 20 : 8, height: 8, borderRadius: 4,
+          background: i < current ? C.correct : i === current ? C.pink : C.bgSoft,
+          transition: "all 0.3s ease",
+        }} />
+      ))}
+    </div>
+  );
+};
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   HOME SCREEN
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+const HomeScreen = ({ onNavigate, stats }) => {
+  const { C, dark, setDark } = useTheme();
+  const gardenTenses = [
+    { name: "Presente", pct: stats.tenseProgress?.presente || 0, color: C.mint },
+    { name: "Pret\u00e9rito", pct: stats.tenseProgress?.preterito || 0, color: C.lavender },
+    { name: "Imperfecto", pct: stats.tenseProgress?.imperfecto || 0, color: C.pink },
+    { name: "Futuro", pct: stats.tenseProgress?.futuro || 0, color: C.peach },
+  ];
+
+  const tiles = [
+    { icon: "\ud83e\udde9", title: "Tense Spotter", desc: "Find the tense", color: C.mintLight, screen: "tenseSpotter" },
+    { icon: "\u270f\ufe0f", title: "Build a Sentence", desc: "Tap words into place", color: C.yellowLight, screen: "sentenceBuilder" },
+    { icon: "\u23f0", title: "Timeline", desc: "Sort verbs by time", color: C.peachLight, screen: "timeline" },
+    { icon: "\ud83d\udcac", title: "Chat Practice", desc: "Reply in the right tense", color: C.pinkLight, screen: "chat" },
+    { icon: "\ud83c\udf99\ufe0f", title: "Speak & Check", desc: "Speak & get feedback", color: C.lavenderLight, screen: "speakCheck" },
+    { icon: "\ud83d\udcca", title: "My Progress", desc: "See your stats", color: C.bgSoft, screen: "stats" },
+  ];
+
+  return (
+    <div style={{ padding: "0 20px 20px" }}>
+      {/* Greeting + dark mode toggle */}
+      <div style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }} className="fade-in">
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+            <span style={{ fontSize: 28 }}>&#127800;</span>
+            <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: 0 }}>Hola, Zoey!</h1>
+          </div>
+          <p style={{ color: C.textLight, fontSize: 14, margin: 0 }}>
+            Ready to build some beautiful sentences?
+          </p>
+        </div>
+        <button onClick={() => setDark(!dark)} style={{
+          background: C.bgSoft, border: "none", borderRadius: 12, width: 40, height: 40,
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, marginTop: 4,
+        }}>
+          {dark ? "\u2600\ufe0f" : "\ud83c\udf19"}
+        </button>
+      </div>
+
+      {/* Streak */}
+      <Card style={{ background: `linear-gradient(135deg, ${C.peachLight}, ${C.pinkLight})`, marginBottom: 16, display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ background: C.card, borderRadius: 16, width: 52, height: 52, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${C.shadow}`, fontSize: 26 }}>
+          &#128293;
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>{stats.streak} Day Streak!</div>
+          <div style={{ fontSize: 12, color: C.textLight }}>{stats.streak > 0 ? "Keep it going!" : "Start a streak today!"}</div>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 11, color: C.textMuted, fontWeight: 700 }}>XP</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>{stats.xp}</div>
+        </div>
+      </Card>
+
+      {/* Quick Practice &#8212; 6 tiles, balanced grid */}
+      <h2 style={{ fontSize: 16, fontWeight: 800, color: C.text, margin: "20px 0 12px" }}>Quick Practice</h2>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {tiles.map((item) => (
+          <Card key={item.title} onClick={() => {
+            if (item.screen === "stats") return; // placeholder
+            onNavigate(item.screen);
+          }} style={{ cursor: "pointer", padding: 16, border: `2px solid ${item.color}`, textAlign: "center" }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>{item.icon}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{item.title}</div>
+            <div style={{ fontSize: 11, color: C.textLight, marginTop: 2 }}>{item.desc}</div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Tense Garden */}
+      <h2 style={{ fontSize: 16, fontWeight: 800, color: C.text, margin: "20px 0 12px" }}>Your Tense Garden &#127799;</h2>
+      <Card style={{ padding: 16 }}>
+        {gardenTenses.map((t) => (
+          <div key={t.name} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.text, width: 80 }}>{t.name}</span>
+            <div style={{ flex: 1, background: C.bgSoft, borderRadius: 6, height: 10, overflow: "hidden" }}>
+              <div style={{ width: `${t.pct}%`, height: "100%", background: t.color, borderRadius: 6, transition: "width 0.5s ease" }} />
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, width: 32, textAlign: "right" }}>{t.pct}%</span>
+          </div>
+        ))}
+        <div style={{ fontSize: 11, color: C.textMuted, textAlign: "center", marginTop: 8 }}>
+          {stats.exercisesDone} exercises completed
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   SENTENCE BUILDER &#8212; with flexible ordering + smart errors
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+const SentenceBuilderScreen = ({ onBack, onCorrect }) => {
+  const { C } = useTheme();
+  const [qIndex, setQIndex] = useState(() => Math.floor(Math.random() * sentenceBuilderBank.length));
+  const [placed, setPlaced] = useState([]);
+  const [available, setAvailable] = useState([]);
+  const [feedback, setFeedback] = useState(null);
+  const [showHint, setShowHint] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+  const q = sentenceBuilderBank[qIndex];
+
+  useEffect(() => {
+    setAvailable([...q.words].sort(() => Math.random() - 0.5));
+    setPlaced([]); setFeedback(null); setShowHint(false); setAttempts(0);
+  }, [qIndex]);
+
+  const handleTap = (word, idx) => { setPlaced([...placed, word]); setAvailable(available.filter((_, i) => i !== idx)); setFeedback(null); };
+  const handleRemove = (idx) => { setAvailable([...available, placed[idx]]); setPlaced(placed.filter((_, i) => i !== idx)); setFeedback(null); };
+
+  const handleCheck = () => {
+    const result = checkSentence(placed, q);
+    if (result.correct) {
+      setFeedback({ type: "correct" });
+      onCorrect(q.xp, q.tenseCat);
+    } else {
+      setFeedback({ type: "wrong", errors: result.errors });
+      setShowHint(true); // reveal hint after first wrong answer
+      setAttempts(attempts + 1);
+    }
+  };
+
+  const handleNext = () => {
+    let next;
+    do { next = Math.floor(Math.random() * sentenceBuilderBank.length); } while (next === qIndex && sentenceBuilderBank.length > 1);
+    setQIndex(next);
+  };
+
+  return (
+    <div style={{ padding: "0 20px 20px" }}>
+      <BackButton onClick={onBack} />
+      <ScreenHeader emoji="\u270f\ufe0f" title="Build the Sentence" subtitle="Tap words in the right order" />
+      <ProgressDots current={qIndex % 5} total={5} />
+      <HintCard forceShow={showHint}>{q.words.includes("Ayer") || q.words.includes("Anoche") || q.words.includes("El") ? q.tense === "pret\u00e9rito" ? "You're talking about the past \u2014 use the pret\u00e9rito! Time words can go first or last." : "This is a routine \u2014 use the presente!" : "Think about when this action happens \u2014 that tells you the tense."}</HintCard>
+
+      <div style={{ textAlign: "center", marginBottom: 16, padding: 12, background: C.bgSoft, borderRadius: 14 }}>
+        <div style={{ fontSize: 11, color: C.textMuted, fontWeight: 700, marginBottom: 4 }}>TRANSLATE:</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>"{q.english}"</div>
+      </div>
+
+      <Card style={{ minHeight: 70, marginBottom: 16, border: `2px dashed ${C.pinkLight}`, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", padding: 16 }}>
+        {placed.length === 0 && <span style={{ color: C.textMuted, fontSize: 13, fontStyle: "italic" }}>Tap words below to build your sentence...</span>}
+        {placed.map((word, i) => (
+          <button key={i} onClick={() => handleRemove(i)} style={{ background: C.lavender, color: "#fff", border: "none", borderRadius: 12, padding: "8px 14px", fontSize: 15, fontWeight: 700 }}>{word}</button>
+        ))}
+      </Card>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginBottom: 20 }}>
+        {available.map((word, i) => (
+          <button key={i} onClick={() => handleTap(word, i)} style={{ background: C.card, color: C.text, border: `2px solid ${C.pinkLight}`, borderRadius: 12, padding: "8px 14px", fontSize: 15, fontWeight: 700 }}>{word}</button>
+        ))}
+      </div>
+
+      {feedback?.type === "correct" && (
+        <div><CorrectCard xp={q.xp}>{q.verbExplain}</CorrectCard><PrimaryButton onClick={handleNext}>Next Sentence &#8594;</PrimaryButton></div>
+      )}
+      {feedback?.type === "wrong" && (
+        <WrongCard onRetry={() => { setAvailable([...available, ...placed].sort(() => Math.random() - 0.5)); setPlaced([]); setFeedback(null); }}>
+          {feedback.errors?.[0] || "Not quite \u2014 try rearranging the words!"}
+          {attempts >= 2 && <div style={{ marginTop: 8, fontSize: 11, color: C.textMuted }}>Tip: One correct order is: "{q.accepted[0].join(" ")}"</div>}
+        </WrongCard>
+      )}
+
+      {!feedback && (
+        <div style={{ display: "flex", gap: 10 }}>
+          <SecondaryButton onClick={() => { setAvailable([...available, ...placed].sort(() => Math.random() - 0.5)); setPlaced([]); }} style={{ flex: 1 }}>Reset</SecondaryButton>
+          <PrimaryButton onClick={handleCheck} disabled={placed.length === 0} style={{ flex: 2 }}>Check &#10024;</PrimaryButton>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   TENSE SPOTTER &#8212; progressive hints
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+const TenseSpotterScreen = ({ onBack, onCorrect }) => {
+  const { C } = useTheme();
+  const [qIndex, setQIndex] = useState(() => Math.floor(Math.random() * tenseSpotterBank.length));
+  const [selected, setSelected] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [showHint, setShowHint] = useState(false);
+  const q = tenseSpotterBank[qIndex];
+  const tenses = ["Presente", "Pret\u00e9rito", "Imperfecto", "Futuro"];
+
+  const handleSelect = (tense) => {
+    if (feedback) return;
+    setSelected(tense);
+    const isCorrect = tense === q.correct;
+    setFeedback(isCorrect ? "correct" : "wrong");
+    if (isCorrect) onCorrect(q.xp, q.tenseCat);
+    if (!isCorrect) setShowHint(true);
+  };
+
+  const handleNext = () => {
+    let next; do { next = Math.floor(Math.random() * tenseSpotterBank.length); } while (next === qIndex && tenseSpotterBank.length > 1);
+    setQIndex(next); setSelected(null); setFeedback(null); setShowHint(false);
+  };
+
+  return (
+    <div style={{ padding: "0 20px 20px" }}>
+      <BackButton onClick={onBack} />
+      <ScreenHeader emoji="\ud83e\udde9" title="Tense Spotter" subtitle="What tense are the highlighted verbs?" />
+
+      <Card style={{ marginBottom: 16, padding: 20 }}>
+        <div style={{ fontSize: 18, lineHeight: 1.7, color: C.text }}>
+          {q.parts.map((p, i) => p.v
+            ? <span key={i} style={{ background: C.lavenderLight, color: C.lavender, fontWeight: 800, padding: "2px 6px", borderRadius: 6 }}>{p.text}</span>
+            : <span key={i}>{p.text}</span>
+          )}
+        </div>
+        <div style={{ marginTop: 10, fontSize: 13, color: C.textMuted, fontStyle: "italic" }}>{q.translation}</div>
+      </Card>
+
+      <HintCard forceShow={showHint}>
+        Look at the verb endings and the context clues. Time markers like "ayer," "siempre," "cuando era" tell you the tense!
+      </HintCard>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+        {tenses.map((t) => {
+          const isSel = selected === t;
+          const isRight = feedback === "correct" && isSel;
+          const isWrong = feedback === "wrong" && isSel;
+          return (
+            <button key={t} onClick={() => handleSelect(t)} style={{
+              background: isRight ? C.correct : isWrong ? C.incorrect : C.card,
+              color: (isRight || isWrong) ? "#fff" : C.text,
+              border: `2px solid ${isRight ? C.correct : isWrong ? C.incorrect : C.lavenderLight}`,
+              borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 700,
+              cursor: feedback ? "default" : "pointer", transition: "all 0.2s ease",
+            }}>{isRight && "\u2713 "}{t}</button>
+          );
+        })}
+      </div>
+
+      {feedback === "correct" && <div><CorrectCard xp={q.xp}>{q.explanation}</CorrectCard><PrimaryButton onClick={handleNext}>Next Question &#8594;</PrimaryButton></div>}
+      {feedback === "wrong" && <WrongCard onRetry={() => { setSelected(null); setFeedback(null); }}>Think about it &#8212; look at the verb endings and context clues in the sentence!</WrongCard>}
+    </div>
+  );
+};
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   CHAT CON AMIGOS &#8212; tense labels HIDDEN until feedback
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+const ChatScreen = ({ onBack, onCorrect }) => {
+  const { C } = useTheme();
+  const [qIndex, setQIndex] = useState(() => Math.floor(Math.random() * chatBank.length));
+  const [messages, setMessages] = useState([]);
+  const [answered, setAnswered] = useState(false);
+  const q = chatBank[qIndex];
+
+  useEffect(() => {
+    setMessages([{ from: "friend", text: q.message, translation: q.translation }]);
+    setAnswered(false);
+  }, [qIndex]);
+
+  const handleSelect = (idx) => {
+    if (answered) return;
+    setAnswered(true);
+    const chosen = q.options[idx];
+    setMessages(prev => [
+      ...prev,
+      { from: "you", text: chosen.text, correct: chosen.correct },
+      { from: "system", text: chosen.correct ? q.correctExplain : q.wrongExplain, xp: chosen.correct ? q.xp : null,
+        // Show all options with their tenses in the feedback
+        reveal: q.options.map(o => `${o.text} \u2192 ${o.tense}`).join(" | "),
+      },
+    ]);
+    if (chosen.correct) onCorrect(q.xp, q.tenseCat);
+  };
+
+  const handleNext = () => {
+    let next; do { next = Math.floor(Math.random() * chatBank.length); } while (next === qIndex && chatBank.length > 1);
+    setQIndex(next);
+  };
+
+  return (
+    <div style={{ padding: "0 20px 20px" }}>
+      <BackButton onClick={onBack} />
+      <ScreenHeader emoji="\ud83d\udcac" title="Chat con Amigos" subtitle="Reply using the right tense!" />
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+        {messages.map((msg, i) => {
+          if (msg.from === "friend") return (
+            <div key={i} style={{ alignSelf: "flex-start", maxWidth: "80%" }} className="fade-in">
+              <div style={{ background: C.card, border: `2px solid ${C.lavenderLight}`, borderRadius: "18px 18px 18px 4px", padding: "12px 16px" }}>
+                <div style={{ fontSize: 14, color: C.text }}>{msg.text}</div>
+                <div style={{ fontSize: 11, color: C.textMuted, fontStyle: "italic", marginTop: 4 }}>{msg.translation}</div>
+              </div>
+              <div style={{ fontSize: 11, color: C.textMuted, marginTop: 4, marginLeft: 4 }}>{q.friendEmoji} {q.friendName}</div>
+            </div>
+          );
+          if (msg.from === "you") return (
+            <div key={i} style={{ alignSelf: "flex-end", maxWidth: "80%" }} className="fade-in">
+              <div style={{ background: msg.correct ? C.mint : C.incorrect, borderRadius: "18px 18px 4px 18px", padding: "12px 16px" }}>
+                <div style={{ fontSize: 14, color: msg.correct ? C.text : "#fff" }}>{msg.text}</div>
+              </div>
+            </div>
+          );
+          if (msg.from === "system") return (
+            <Card key={i} style={{ background: msg.xp ? `${C.correct}15` : `${C.yellow}22`, padding: 12, border: `1px solid ${msg.xp ? C.correct : C.yellow}` }}>
+              <div style={{ fontSize: 13, color: C.text, lineHeight: 1.4 }}>{msg.text}</div>
+              {msg.reveal && <div style={{ fontSize: 11, color: C.textMuted, marginTop: 8, borderTop: `1px solid ${C.bgSoft}`, paddingTop: 6 }}>&#128221; {msg.reveal}</div>}
+              {msg.xp && <XPBadge xp={msg.xp} />}
+            </Card>
+          );
+          return null;
+        })}
+      </div>
+
+      {/* Options &#8212; NO tense labels shown */}
+      {!answered && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }} className="fade-in">
+          <div style={{ fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: "center" }}>Choose your reply:</div>
+          {q.options.map((opt, i) => (
+            <button key={i} onClick={() => handleSelect(i)} style={{
+              background: C.card, border: `2px solid ${C.pinkLight}`, borderRadius: 14,
+              padding: "12px 16px", fontSize: 14, color: C.text, textAlign: "left", transition: "all 0.15s ease",
+            }}>{opt.text}</button>
+          ))}
+        </div>
+      )}
+      {answered && <PrimaryButton onClick={handleNext} style={{ marginTop: 8 }}>Next Chat &#8594;</PrimaryButton>}
+    </div>
+  );
+};
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   TIMELINE CHALLENGE
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+const TimelineScreen = ({ onBack, onCorrect }) => {
+  const { C } = useTheme();
+  const [qIndex, setQIndex] = useState(() => Math.floor(Math.random() * timelineBank.length));
+  const [placed, setPlaced] = useState({});
+  const [feedback, setFeedback] = useState(null);
+  const [selectedVerb, setSelectedVerb] = useState(null);
+  const q = timelineBank[qIndex];
+
+  const zones = [
+    { id: "habitual-past", label: "Habitual Past", color: C.lavender, emoji: "\ud83d\udd04", desc: "used to..." },
+    { id: "completed-past", label: "Completed Past", color: C.pink, emoji: "\u2705", desc: "did once" },
+    { id: "present", label: "Present", color: C.mint, emoji: "\ud83d\udccd", desc: "do now" },
+    { id: "future", label: "Future", color: C.peach, emoji: "\ud83d\udd2e", desc: "will do" },
+  ];
+
+  useEffect(() => { setPlaced({}); setFeedback(null); setSelectedVerb(null); }, [qIndex]);
+  const unplaced = q.verbs.filter(v => !placed[v.id]);
+
+  const handleZoneTap = (zoneId) => {
+    if (selectedVerb) { setPlaced({ ...placed, [selectedVerb]: zoneId }); setSelectedVerb(null); setFeedback(null); }
+    else if (unplaced.length > 0) { setPlaced({ ...placed, [unplaced[0].id]: zoneId }); setFeedback(null); }
+  };
+
+  const handleCheck = () => {
+    if (Object.keys(placed).length < q.verbs.length) return;
+    const allCorrect = q.verbs.every(v => placed[v.id] === v.zone);
+    setFeedback(allCorrect ? "correct" : "wrong");
+    if (allCorrect) onCorrect(q.xp, "mixed");
+  };
+
+  const handleNext = () => {
+    let next; do { next = Math.floor(Math.random() * timelineBank.length); } while (next === qIndex && timelineBank.length > 1);
+    setQIndex(next);
+  };
+
+  return (
+    <div style={{ padding: "0 20px 20px" }}>
+      <BackButton onClick={onBack} />
+      <ScreenHeader emoji="\u23f0" title="Timeline Challenge" subtitle="Tap a verb, then tap where it belongs!" />
+
+      {unplaced.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginBottom: 16 }}>
+          {unplaced.map(v => (
+            <button key={v.id} onClick={() => setSelectedVerb(selectedVerb === v.id ? null : v.id)} style={{
+              background: selectedVerb === v.id ? C.pink : C.card, color: selectedVerb === v.id ? "#fff" : C.text,
+              border: `2px solid ${selectedVerb === v.id ? C.pink : C.pinkLight}`,
+              borderRadius: 12, padding: "8px 14px", fontSize: 14, fontWeight: 700, textAlign: "center",
+            }}>
+              <div>{v.verb}</div>
+              <div style={{ fontSize: 11, fontWeight: 400, opacity: 0.7 }}>{v.meaning}</div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+        {zones.map(zone => {
+          const verbsHere = q.verbs.filter(v => placed[v.id] === zone.id);
+          return (
+            <div key={zone.id} onClick={() => handleZoneTap(zone.id)} style={{
+              background: `${zone.color}22`, border: `2px dashed ${zone.color}`, borderRadius: 14,
+              padding: "12px 16px", cursor: "pointer", minHeight: 50,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: verbsHere.length ? 8 : 0 }}>
+                <span>{zone.emoji}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{zone.label}</span>
+                <span style={{ fontSize: 11, color: C.textMuted }}>({zone.desc})</span>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {verbsHere.map(v => (
+                  <span key={v.id} onClick={e => { e.stopPropagation(); const p = {...placed}; delete p[v.id]; setPlaced(p); setFeedback(null); }} style={{
+                    background: zone.color, color: "#fff", borderRadius: 10, padding: "6px 12px", fontSize: 14, fontWeight: 700, cursor: "pointer",
+                  }}>{v.verb}</span>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {feedback === "correct" && <div><CorrectCard xp={q.xp}>You placed every verb correctly! The tense tells you <em>when</em> and <em>how</em> the action happened.</CorrectCard><PrimaryButton onClick={handleNext}>Next Challenge &#8594;</PrimaryButton></div>}
+      {feedback === "wrong" && <WrongCard onRetry={() => { setPlaced({}); setFeedback(null); }}>One or more verbs are wrong. Remember: <strong>-aba/-&#237;a</strong> = habitual past, <strong>-&#233;/-&#237;/-&#243;</strong> = completed past!</WrongCard>}
+      {!feedback && <PrimaryButton onClick={handleCheck} disabled={Object.keys(placed).length < q.verbs.length}>Check Placement &#10024;</PrimaryButton>}
+    </div>
+  );
+};
+
+/* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
+   SPEAK & CHECK &#8212; improved analyzer
+   &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552; */
+const SpeakCheckScreen = ({ onBack, onCorrect }) => {
+  const { C } = useTheme();
+  const [qIndex, setQIndex] = useState(() => Math.floor(Math.random() * speakCheckBank.length));
+  const [phase, setPhase] = useState("prompt");
+  const [transcript, setTranscript] = useState("");
+  const [dots, setDots] = useState(0);
+  const [listenSec, setListenSec] = useState(0);
+  const [feedback, setFeedback] = useState(null);
+  const recognitionRef = useRef(null);
+  const q = speakCheckBank[qIndex];
+
+  useEffect(() => {
+    if (phase === "listening") {
+      const d = setInterval(() => setDots(x => (x + 1) % 4), 400);
+      const t = setInterval(() => setListenSec(x => x + 1), 1000);
+      return () => { clearInterval(d); clearInterval(t); };
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase === "processing") {
+      const timer = setTimeout(() => {
+        if (transcript) {
+          const result = analyzeSpoken(transcript, q);
+          setFeedback(result);
+          if (result.tenseCorrect) onCorrect(q.xp, q.tenseCat);
+        }
+        setPhase("feedback");
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [phase]);
+
+  const startListening = () => {
+    setTranscript(""); setListenSec(0); setFeedback(null);
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { setPhase("noSpeech"); return; }
+    const r = new SR();
+    r.lang = "es-ES"; r.interimResults = false; r.continuous = true;
+    r.onresult = (e) => { let t = ""; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; setTranscript(t); };
+    r.onerror = (e) => { if (e.error === "not-allowed") setPhase("noSpeech"); };
+    recognitionRef.current = r; r.start(); setPhase("listening");
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) recognitionRef.current.stop();
+    setTimeout(() => setPhase("processing"), 300);
+  };
+
+  const speakSample = () => {
+    const u = new SpeechSynthesisUtterance(q.sampleAnswer);
+    u.lang = "es-ES"; u.rate = 0.85; window.speechSynthesis.speak(u);
+  };
+
+  const handleNext = () => {
+    let next; do { next = Math.floor(Math.random() * speakCheckBank.length); } while (next === qIndex && speakCheckBank.length > 1);
+    setQIndex(next); setPhase("prompt"); setTranscript(""); setFeedback(null);
+  };
+
+  const MicBars = () => (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 3, height: 40 }}>
+      {[0,1,2,3,4,5,6].map(i => (
+        <div key={i} style={{ width: 4, borderRadius: 2, background: C.pink, height: `${12 + Math.sin((dots * 0.8) + i * 0.9) * 12 + 12}px`, transition: "height 0.15s ease" }} />
+      ))}
+    </div>
+  );
+
+  return (
+    <div style={{ padding: "0 20px 20px" }}>
+      <BackButton onClick={onBack} />
+      <ScreenHeader emoji="\ud83c\udf99\ufe0f" title="Habla y Revisa" subtitle="Speak your answer \u2014 I'll give you feedback!" />
+
+      <Card style={{ marginBottom: 16, border: `2px solid ${C.lavenderLight}`, textAlign: "center" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, marginBottom: 6 }}>ANSWER THIS:</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4 }}>{q.question}</div>
+        <div style={{ fontSize: 13, color: C.textMuted, fontStyle: "italic" }}>{q.translation}</div>
+      </Card>
+
+      <HintCard>{q.hint}</HintCard>
+
+      {phase === "prompt" && (
+        <div style={{ textAlign: "center", marginBottom: 20 }} className="fade-in">
+          <button onClick={startListening} className="pulse" style={{
+            width: 80, height: 80, borderRadius: 40, background: `linear-gradient(135deg, ${C.pink}, ${C.pinkDark || C.pink})`,
+            border: "none", display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 12px", boxShadow: `0 4px 20px ${C.pink}66`, fontSize: 32,
+          }}>&#127908;</button>
+          <div style={{ fontSize: 13, color: C.textLight }}>Tap to start speaking</div>
+        </div>
+      )}
+
+      {phase === "noSpeech" && (
+        <Card style={{ textAlign: "center", marginBottom: 16, border: `2px solid ${C.yellow}` }}>
+          <div style={{ fontSize: 24, marginBottom: 8 }}>&#128263;</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>Speech not available</div>
+          <div style={{ fontSize: 12, color: C.textLight, marginBottom: 12 }}>Try opening this in Chrome and allowing mic access!</div>
+          <div style={{ fontSize: 14, color: C.text, fontStyle: "italic", marginBottom: 12 }}>Model answer: "{q.sampleAnswer}"</div>
+          <button onClick={speakSample} style={{ background: C.lavender, color: "#fff", border: "none", borderRadius: 10, padding: "8px 16px", fontSize: 12, fontWeight: 700 }}>&#128266; Hear it</button>
+          <div style={{ marginTop: 12 }}><PrimaryButton onClick={handleNext}>Next &#8594;</PrimaryButton></div>
+        </Card>
+      )}
+
+      {phase === "listening" && (
+        <div style={{ textAlign: "center", marginBottom: 20 }} className="fade-in">
+          <Card style={{ background: `${C.pink}11`, border: `2px solid ${C.pink}`, padding: 20 }}>
+            <MicBars />
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.pink, marginTop: 8 }}>Listening{".".repeat(dots)}</div>
+            <div style={{ fontSize: 12, color: C.textMuted, marginTop: 4 }}>{listenSec}s &#8212; take your time!</div>
+          </Card>
+          <button onClick={stopListening} className="mic-pulse" style={{
+            marginTop: 12, width: 60, height: 60, borderRadius: 30, background: C.pink, border: "none",
+            display: "flex", alignItems: "center", justifyContent: "center", margin: "12px auto 0",
+          }}><div style={{ width: 20, height: 20, borderRadius: 4, background: "#fff" }} /></button>
+          <div style={{ fontSize: 12, color: C.textMuted, marginTop: 8 }}>Tap to stop</div>
+        </div>
+      )}
+
+      {phase === "processing" && (
+        <div style={{ textAlign: "center", padding: 30 }} className="fade-in">
+          <div style={{ fontSize: 28, marginBottom: 8 }}>&#129300;</div>
+          <div style={{ fontSize: 14, color: C.textLight }}>Analyzing your response...</div>
+        </div>
+      )}
+
+      {phase === "feedback" && feedback && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }} className="fade-in">
+          <Card style={{ background: C.bgSoft, padding: 14 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, marginBottom: 4 }}>WHAT YOU SAID:</div>
+            <div style={{ fontSize: 15, color: C.text, fontStyle: "italic" }}>"{feedback.transcript}"</div>
+          </Card>
+
+          <Card style={{ background: feedback.tenseCorrect ? `${C.correct}15` : `${C.yellow}22`, border: `2px solid ${feedback.tenseCorrect ? C.correct : C.yellow}`, padding: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+              <span style={{ fontSize: 18 }}>{feedback.tenseCorrect ? "\u2705" : "\ud83d\udca1"}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Tense: {q.expectedTense} {feedback.tenseCorrect ? "\u2713" : "\u2014 keep practicing"}</span>
+            </div>
+            <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5 }}>{feedback.praise}</div>
+          </Card>
+
+          {feedback.corrections.map((c, i) => (
+            <Card key={i} style={{ background: `${C.yellow}22`, border: `2px solid ${C.yellow}`, padding: 14 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 8 }}>&#9999;&#65039; Small fix:</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+                <span style={{ background: `${C.incorrect}33`, padding: "4px 10px", borderRadius: 8, fontSize: 14, textDecoration: "line-through", color: C.text }}>{c.issue}</span>
+                <span style={{ color: C.text }}>&#8594;</span>
+                <span style={{ background: `${C.correct}33`, padding: "4px 10px", borderRadius: 8, fontSize: 14, fontWeight: 700, color: C.text }}>{c.fix}</span>
+              </div>
+              <div style={{ fontSize: 13, color: C.textLight, lineHeight: 1.4 }}>{c.explanation}</div>
+            </Card>
+          ))}
+
+          <Card style={{ background: C.lavenderLight, padding: 14, border: `2px solid ${C.lavender}` }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, marginBottom: 4 }}>&#127775; MODEL ANSWER:</div>
+            <div style={{ fontSize: 14, color: C.text, lineHeight: 1.5, fontStyle: "italic" }}>"{q.sampleAnswer}"</div>
+            <button onClick={speakSample} style={{ marginTop: 8, background: C.lavender, color: "#fff", border: "none", borderRadius: 10, padding: "8px 16px", fontSize: 12, fontWeight: 700 }}>&#128266; Hear it spoken</button>
+          </Card>
+
+          {feedback.tenseCorrect && <XPBadge xp={q.xp} />}
+          <div style={{ display: "flex", gap: 10 }}>
+            <SecondaryButton onClick={() => { setPhase("prompt"); setTranscript(""); setFeedback(null); }} style={{ flex: 1 }}>Try Again</SecondaryButton>
+            <PrimaryButton onClick={handleNext} style={{ flex: 2 }}>Next Question &#8594;</PrimaryButton>
+          </div>
+        </div>
+      )}
+
+      {phase === "feedback" && !feedback && (
+        <Card style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 14, color: C.textLight }}>I didn't catch anything \u2014 try speaking a bit louder or closer to the mic!</div>
+          <button onClick={() => setPhase("prompt")} style={{ marginTop: 10, background: C.pink, color: "#fff", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, fontWeight: 700 }}>Try Again</button>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+   MAIN APP
+   \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+function App() {
+  const [screen, setScreen] = useState("home");
+  const [dark, setDark] = useState(() => {
+    try { return localStorage.getItem("verbita_dark") === "true"; } catch { return false; }
+  });
+
+  const [stats, setStats] = useState(() => {
+    const saved = loadSave();
+    return saved || {
+      streak: 0, xp: 0, exercisesDone: 0,
+      tenseProgress: { presente: 0, preterito: 0, imperfecto: 0, futuro: 0 },
+      lastPracticeDate: null,
+    };
+  });
+
+  // Persist on change
+  useEffect(() => { writeSave(stats); }, [stats]);
+  useEffect(() => {
+    try { localStorage.setItem("verbita_dark", dark); } catch {}
+  }, [dark]);
+
+  const C = dark ? darkTheme : lightTheme;
+
+  const onCorrect = useCallback((xpAmount, tenseCat) => {
+    setStats(prev => {
+      const today = new Date().toDateString();
+      const isNewDay = prev.lastPracticeDate !== today;
+      const newStreak = isNewDay ? prev.streak + 1 : prev.streak;
+
+      const tp = { ...prev.tenseProgress };
+      if (tenseCat === "mixed") {
+        // Small boost to all
+        Object.keys(tp).forEach(k => { tp[k] = Math.min(100, tp[k] + 1); });
+      } else if (tp[tenseCat] !== undefined) {
+        tp[tenseCat] = Math.min(100, tp[tenseCat] + 5);
+      }
+
+      return {
+        ...prev,
+        xp: prev.xp + xpAmount,
+        exercisesDone: prev.exercisesDone + 1,
+        streak: newStreak,
+        tenseProgress: tp,
+        lastPracticeDate: today,
+      };
+    });
+  }, []);
+
+  // Apply theme to body
+  useEffect(() => {
+    document.body.style.background = C.bg;
+    document.body.style.color = C.text;
+  }, [dark]);
+
+  return (
+    <ThemeContext.Provider value={{ C, dark, setDark }}>
+      <div style={{ maxWidth: 420, margin: "0 auto", minHeight: "100vh", position: "relative", paddingBottom: 75, background: C.bg, transition: "background 0.3s ease" }}>
+        {/* Top bar */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px 8px", position: "sticky", top: 0, background: C.bg, zIndex: 10, transition: "background 0.3s ease" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 16 }}>\u2764\ufe0f</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: C.pink }}>5</span>
+          </div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: C.text, letterSpacing: -0.5 }}>\ud83c\udf37 Verbita</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 16 }}>\u2b50</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#DAA520" }}>{stats.xp}</span>
+          </div>
+        </div>
+
+        {screen === "home" && <HomeScreen onNavigate={setScreen} stats={stats} />}
+        {screen === "sentenceBuilder" && <SentenceBuilderScreen onBack={() => setScreen("home")} onCorrect={onCorrect} />}
+        {screen === "tenseSpotter" && <TenseSpotterScreen onBack={() => setScreen("home")} onCorrect={onCorrect} />}
+        {screen === "chat" && <ChatScreen onBack={() => setScreen("home")} onCorrect={onCorrect} />}
+        {screen === "timeline" && <TimelineScreen onBack={() => setScreen("home")} onCorrect={onCorrect} />}
+        {screen === "speakCheck" && <SpeakCheckScreen onBack={() => setScreen("home")} onCorrect={onCorrect} />}
+
+        {/* Bottom nav */}
+        <div style={{
+          position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+          width: 420, maxWidth: "100%", background: C.card,
+          borderTop: `1px solid ${C.bgSoft}`, display: "flex", justifyContent: "space-around",
+          padding: "10px 0 20px", boxShadow: `0 -2px 12px ${C.shadow}`, borderRadius: "20px 20px 0 0", zIndex: 10,
+          transition: "background 0.3s ease",
+        }}>
+          {[
+            { id: "home", icon: "\ud83c\udfe0", label: "Home" },
+            { id: "learn", icon: "\ud83d\udcd6", label: "Learn" },
+            { id: "practice", icon: "\ud83c\udfaf", label: "Practice" },
+            { id: "profile", icon: "\ud83c\udf38", label: "Me" },
+          ].map(item => (
+            <button key={item.id} onClick={() => setScreen("home")} style={{
+              background: "none", border: "none", display: "flex", flexDirection: "column",
+              alignItems: "center", gap: 2, opacity: item.id === "home" ? 1 : 0.5,
+            }}>
+              <span style={{ fontSize: 20 }}>{item.icon}</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: C.text }}>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </ThemeContext.Provider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
