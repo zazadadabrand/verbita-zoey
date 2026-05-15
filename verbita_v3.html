@@ -778,7 +778,7 @@ const HomeScreen = ({ onNavigate, stats }) => {
   const tiles = [
     { icon: "\ud83e\udde9", title: "Tense Spotter", desc: "Find the tense", color: C.mintLight, screen: "tenseSpotter" },
     { icon: "\u270f\ufe0f", title: "Build a Sentence", desc: "Tap words into place", color: C.yellowLight, screen: "sentenceBuilder" },
-    { icon: "\u23f0", title: "Timeline", desc: "Sort verbs by time", color: C.peachLight, screen: "timeline" },
+    { icon: "\ud83e\udd86", title: "My Duck", desc: "Level up Quackers!", color: C.peachLight, screen: "duck" },
     { icon: "\ud83d\udcac", title: "Chat Practice", desc: "Reply in the right tense", color: C.pinkLight, screen: "chat" },
     { icon: "\ud83c\udf99\ufe0f", title: "Speak & Check", desc: "Speak & get feedback", color: C.lavenderLight, screen: "speakCheck" },
     { icon: "\ud83d\udcca", title: "My Progress", desc: "See your stats", color: C.bgSoft, screen: "stats" },
@@ -790,7 +790,7 @@ const HomeScreen = ({ onNavigate, stats }) => {
       <div style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }} className="fade-in">
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <span style={{ fontSize: 28 }}>&#127800;</span>
+            <span style={{ fontSize: 28 }} className="pulse">&#129414;</span>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: 0 }}>Hola, Zoey!</h1>
           </div>
           <p style={{ color: C.textLight, fontSize: 14, margin: 0 }}>
